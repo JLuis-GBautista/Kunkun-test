@@ -1,18 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import getKafkaConfig from './config/kafka';
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.REDIS,
-      options: {
-        host: 'localhost',
-        port: 6379,
-      },
-    },
-  );
+  const appContext = await NestFactory.createApplicationContext(AppModule);
+  const configService = appContext.get(ConfigService);
+
+  const kafkaOptions = getKafkaConfig(configService);
+
+  const app = await NestFactory.createMicroservice(AppModule, kafkaOptions);
   await app.listen();
 }
 bootstrap().catch((e) => console.log(e));
