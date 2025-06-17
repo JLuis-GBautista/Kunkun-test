@@ -12,16 +12,19 @@ export class AppService {
 
   exitOrder(data: OrderCreatePayloadV1) {
     console.log('OrderService: order created', data);
-    this.client.emit('order_confirmed', data);
+    //this.client.emit('order.confirmed.v1', data);
   }
 
   errorOrder(id: string, error: unknown) {
     if (error instanceof Error) {
       console.error('OrderService: error', error.message);
-      this.client.emit('order_failed', { orderId: id, reason: error.message });
+      // this.client.emit('order.failed.v1', {
+      //   orderId: id,
+      //   reason: error.message,
+      // });
     } else {
       console.error('OrderService: error', error);
-      this.client.emit('order_failed', { orderId: id, reason: error });
+      //this.client.emit('order.failed', { orderId: id, reason: error });
     }
   }
 }

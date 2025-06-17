@@ -1,19 +1,27 @@
 import { ConfigService } from '@nestjs/config';
 import { KafkaOptions, Transport } from '@nestjs/microservices';
 
-const getKafkaConfig = (configService: ConfigService): KafkaOptions => ({
-  transport: Transport.KAFKA,
-  options: {
-    client: {
-      // único, inclusive para escalamiento horizontal, instancias con id distinto
-      clientId: configService.get<string>('KAFKA_CLIENT_ID') || '',
-      brokers: [configService.get<string>('KAFKA_BROKER') || ''],
+const getKafkaConfig = (configService: ConfigService): KafkaOptions => {
+  const clientId = configService.get<string>('KAFKA_CLIENT_ID');
+  const brokers = configService.get<string>('KAFKA_BROKER');
+  const groupId = configService.get<string>('KAFKA_GROUP_ID');
+
+  if (!clientId) throw new Error('KAFKA_CLIENT_ID is required');
+  if (!brokers) throw new Error('KAFKA_BROKER is required');
+  if (!groupId) throw new Error('KAFKA_GROUP_ID is required');
+
+  return {
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        clientId,
+        brokers: [brokers],
+      },
+      consumer: {
+        groupId,
+      },
     },
-    consumer: {
-      // único por micro-servicio, pero sus instancias deben ser similares.
-      groupId: configService.get<string>('KAFKA_GROUP_ID') || '',
-    },
-  },
-});
+  };
+};
 
 export default getKafkaConfig;

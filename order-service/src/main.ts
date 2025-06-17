@@ -6,7 +6,6 @@ import getKafkaConfig from './config/kafka';
 async function bootstrap() {
   const appContext = await NestFactory.createApplicationContext(AppModule);
   const configService = appContext.get(ConfigService);
-
   const kafkaOptions = getKafkaConfig(configService);
 
   const app = await NestFactory.createMicroservice(AppModule, kafkaOptions);
